@@ -1,6 +1,7 @@
 package access
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
@@ -14,15 +15,6 @@ type OrderedMap struct {
 	Colname string
 	Value   string
 }
-
-//ErrPath is the path for the Error Log
-var ErrPath string
-
-//Errorlog is a writer that writes log errors to file
-var Errorlog *log.Logger
-
-//ErrorFile is the error file
-var ErrorFile *os.File
 
 //ConvertToString converts an array of NullString interfaces to an array of string
 func ConvertToString(vals []interface{}) []string {
@@ -76,25 +68,6 @@ func ConvertToOrderedMap(cols []OrderedMap, rowstring []string) []OrderedMap {
 	return cols
 }
 
-//CreateErrorLog creates an error log file in the specified location
-func CreateErrorLog(test bool) {
-	if !test {
-		if !CreateFile(ErrPath) {
-			log.Printf("Cannot Create Error Log in path: %s", ErrPath)
-		}
-	} else {
-		ErrPath = "C:\\Users\\raymond chou\\Desktop\\Test.log"
-		CreateFile(ErrPath)
-	}
-
-	ErrorFile, conn := ConnectToTxt(ErrPath)
-	if !conn {
-		log.Fatalln("Unable to Open Error File")
-	}
-	Errorlog = log.New(ErrorFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
-
-}
-
 // ConnectToTxt Connects to Text File
 func ConnectToTxt(filedir string) (*os.File, bool) {
 	file, err := os.OpenFile(filedir, os.O_APPEND|os.O_RDWR|os.O_WRONLY, 0666)
@@ -135,4 +108,29 @@ func CreateFile(path string) bool {
 	}
 	f.Close()
 	return true
+}
+
+//ReadPath reads a from User input
+func ReadPath(typeofpath string) string {
+	fmt.Printf("\n\n------ENTER PATH FOR %s ------", typeofpath)
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("Enter Path for %s: ", typeofpath)
+	path, _ := reader.ReadString('\n')
+	return path
+}
+
+//CreateErrorLog gets the path and creates the error file
+func CreateErrorLog(test bool) *os.File {
+	var path string
+	if test {
+		path = "C:\\Users\\raymond chou\\Desktop\\ErrorLog.log"
+	} else {
+		path = ReadPath("Error Log")
+	}
+	CreateFile(path)
+	errFile, err := ConnectToTxt(path)
+	if !err {
+		log.Fatal("Did not connect\n")
+	}
+	return errFile
 }
