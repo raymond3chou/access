@@ -1,7 +1,6 @@
 package access
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
@@ -21,6 +20,9 @@ var ErrPath string
 
 //Errorlog is a writer that writes log errors to file
 var Errorlog *log.Logger
+
+//ErrorFile is the error file
+var ErrorFile *os.File
 
 //ConvertToString converts an array of NullString interfaces to an array of string
 func ConvertToString(vals []interface{}) []string {
@@ -77,26 +79,20 @@ func ConvertToOrderedMap(cols []OrderedMap, rowstring []string) []OrderedMap {
 //CreateErrorLog creates an error log file in the specified location
 func CreateErrorLog(test bool) {
 	if !test {
-		fmt.Println("\n\n------ENTER PATH FOR ERROR LOG------")
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter Path: ")
-		ErrPath, _ = reader.ReadString('\n')
 		if !CreateFile(ErrPath) {
-			log.Fatalf("Cannot Create Error Log in path: %s", ErrPath)
-		} else if ErrPath == "test" {
-			ErrPath = "C:\\Users\\raymond chou\\Desktop\\ErrorLog.log"
-		} else {
-			log.Printf("Error Log Created in path: %s", ErrPath)
+			log.Printf("Cannot Create Error Log in path: %s", ErrPath)
 		}
 	} else {
-		ErrPath = "C:\\Users\\raymond chou\\Desktop\\ErrorLog.log"
+		ErrPath = "C:\\Users\\raymond chou\\Desktop\\Test.log"
+		CreateFile(ErrPath)
 	}
 
-	file, conn := ConnectToTxt(ErrPath)
+	ErrorFile, conn := ConnectToTxt(ErrPath)
 	if !conn {
 		log.Fatalln("Unable to Open Error File")
 	}
-	Errorlog = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+	Errorlog = log.New(ErrorFile, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+
 }
 
 // ConnectToTxt Connects to Text File
