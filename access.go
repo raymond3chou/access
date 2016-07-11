@@ -112,7 +112,7 @@ func CreateFile(path string) bool {
 
 //ReadPath reads a from User input
 func ReadPath(typeofpath string) string {
-	fmt.Printf("\n\n------ENTER PATH FOR %s ------", typeofpath)
+	fmt.Printf("\n\n------ENTER PATH FOR %s ------\n", typeofpath)
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Printf("Enter Path for %s: ", typeofpath)
 	path, _ := reader.ReadString('\n')
@@ -133,4 +133,21 @@ func CreateErrorLog(test bool) *os.File {
 		log.Fatal("Did not connect\n")
 	}
 	return errFile
+}
+
+//CompareSlice compares two slices and return a boolean for result
+func CompareSlice(slice1 []string, slice2 []string) bool {
+	matchCount := 0
+	for _, slice1Value := range slice1 {
+		for _, slice2Value := range slice2 {
+			if slice1Value == slice2Value {
+				matchCount++
+			}
+		}
+	}
+	if matchCount == len(slice1) {
+		return true
+	}
+	return false
+
 }
