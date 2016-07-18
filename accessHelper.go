@@ -1,4 +1,4 @@
-package access
+package accessHelper
 
 import (
 	"bufio"
@@ -16,6 +16,17 @@ type OrderedMap struct {
 	Value   string
 }
 
+//TimeConvertor removes the T from the time read in
+func TimeConvertor(cols []OrderedMap) []OrderedMap {
+	for i := range cols {
+		if cols[i].Colname == "FU_D" || cols[i].Colname == "DOB" {
+			splitStr := strings.Split(cols[i].Value, "T")
+			cols[i].Value = splitStr[0]
+		}
+	}
+	return cols
+}
+
 //ConvertToString converts an array of NullString interfaces to an array of string
 func ConvertToString(vals []interface{}) []string {
 	row := make([]string, len(vals))
@@ -29,7 +40,8 @@ func ConvertToString(vals []interface{}) []string {
 //ConvertToText takes in the queried row divided in an array of strings based off of the column
 //maincolumns contains the master columns and a flag for which ever one was used
 //the function arranges based on
-func ConvertToText(maincolumns []string, cols []OrderedMap) string {
+func ConvertToText(maincolumns []string, cols []OrderedMap, dbq string) string {
+	cols = TimeConvertor(cols)
 	var row string
 	found := false
 	row = "\n"
@@ -46,7 +58,8 @@ func ConvertToText(maincolumns []string, cols []OrderedMap) string {
 			row += "|"
 		}
 	}
-	row = strings.TrimSuffix(row, "|")
+	row += dbq
+	// row = strings.TrimSuffix(row, "|")
 
 	return row
 }
@@ -91,8 +104,8 @@ func FileWrite(file *os.File, row string) int {
 }
 
 //ReadFile reads a file
-func ReadFile(filename string) string {
-	fileoutput, err := ioutil.ReadFile(filename)
+func ReadFile(filePath string) string {
+	fileoutput, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -123,7 +136,9 @@ func ReadPath(typeofpath string) string {
 func CreateErrorLog(test bool) *os.File {
 	var path string
 	if test {
-		path = "C:\\Users\\raymond chou\\Desktop\\ErrorLog.log"
+		// path = "C:\\Users\\raymond chou\\Desktop\\ErrorLog.log"
+		path = "C:\\Users\\ext_hsc\\Desktop\\VR\\ErrorLog.log"
+
 	} else {
 		path = ReadPath("Error Log")
 	}
