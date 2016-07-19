@@ -78,30 +78,12 @@ func ReadRow(sheet *xlsx.File) []string {
 
 //WriteStruct writes the struct type to text so it can be copied into peri.go
 func WriteStruct(colNameSlice []string) {
-	path := "C:\\Users\\raymond chou\\Desktop\\struct.txt"
+	path := "C:\\Users\\raymond chou\\Desktop\\PeriOp\\struct.txt"
 	accessHelper.CreateFile(path)
 	file, _ := accessHelper.ConnectToTxt(path)
 	for _, c := range colNameSlice {
 		var structPrint string
 		lowerC := strings.ToLower(c)
-		if strings.Contains(lowerC, "reop") {
-			continue
-		}
-		if strings.Contains(lowerC, "mi") {
-			continue
-		}
-		if strings.Contains(lowerC, "pace") {
-			continue
-		}
-		if strings.Contains(lowerC, "tia") {
-			continue
-		}
-		if strings.Contains(lowerC, "stroke") {
-			continue
-		}
-		if strings.Contains(lowerC, "survival") {
-			continue
-		}
 		upperC := strings.ToUpper(c)
 		structPrint += upperC
 		structPrint += " " + "string"
