@@ -1,11 +1,8 @@
 package excelHelper
 
 import (
-	"bufio"
 	"fmt"
-	"io"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/access"
@@ -124,41 +121,4 @@ func PeriOpLiteral(colNameSlice []string) {
 		structPrint += "`json:\"" + lowerC + "\"`\n"
 		accessHelper.FileWrite(file, structPrint)
 	}
-}
-
-//CheckIDDuplicates checks for duplicates in chart or ptid
-func CheckIDDuplicates(id string, ptid bool) bool {
-	var path string
-	if ptid {
-		path = "C:\\Users\\raymond chou\\Desktop\\PeriOp\\ptid.txt"
-	} else {
-		path = "C:\\Users\\raymond chou\\Desktop\\PeriOp\\chart.txt"
-	}
-
-	accessHelper.CreateFile(path)
-	file, _ := accessHelper.ConnectToTxt(path)
-	idDup := compareLine(file, id)
-	if !idDup {
-		accessHelper.FileWrite(file, id)
-		return false
-	}
-	return true
-}
-
-//compareLine reads a line from text then compares if it matches cLine
-func compareLine(file *os.File, cLine string) bool {
-	reader := bufio.NewReader(file)
-	line, err := reader.ReadString('\n')
-	for err == nil {
-		if cLine == line {
-			return true
-		}
-		fmt.Print(line)
-		line, err = reader.ReadString('\n')
-	}
-	if err != io.EOF {
-		log.Println(err)
-		return false
-	}
-	return false
 }
