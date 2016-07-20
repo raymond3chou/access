@@ -3,6 +3,7 @@ package excelHelper
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/access"
@@ -121,4 +122,13 @@ func PeriOpLiteral(colNameSlice []string) {
 		structPrint += "`json:\"" + lowerC + "\"`\n"
 		accessHelper.FileWrite(file, structPrint)
 	}
+}
+
+//StringToInt converts string to int
+func StringToInt(s string) int {
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	return i
 }

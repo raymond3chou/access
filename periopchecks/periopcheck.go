@@ -9,6 +9,7 @@ import (
 	"strconv"
 
 	"github.com/access"
+	"github.com/access/excelHelper"
 )
 
 //CheckIDDuplicates checks for duplicates in chart or ptid
@@ -94,20 +95,23 @@ func ErrorHandler(rowCheck bool, row int, col string, value string) {
 	}
 }
 
-func stringToInt(s string) int {
-	i, err := strconv.Atoi(s)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return i
-}
-
 //CheckPVD checks if PVD defaults to 1 when CORATID is >0
 func CheckPVD(pvd string, coratID string) bool {
-	p := stringToInt(pvd)
-	c := stringToInt(coratID)
+	p := excelHelper.StringToInt(pvd)
+	c := excelHelper.StringToInt(coratID)
 	if c > 0 && p == 1 {
 		return true
+	}
+	return false
+}
+
+//CheckVPROS checks if the type is one of the listed in the codebook
+func CheckVPROS(value string) bool {
+	listedType := []string{"BP", "CA", "CF", "CP", "EC", "FS", "HO", "HT", "MC", "MP", "PA", "TO", "TF", "TR", "CM", "SJ", "AS", "BS", "CE", "DH", "ED", "EP", "FL", "HA", "HE", "HK", "IO", "LK", "MF", "MH", "MI", "MO", "MS", "OS", "SC", "SE", "SP", "SU", "TD", "D1", "D2", "DV", "PD", "PR", "R", "RC", "RD", "RS", "ST"}
+	for _, t := range listedType {
+		if t == value {
+			return true
+		}
 	}
 	return false
 }
