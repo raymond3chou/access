@@ -115,3 +115,14 @@ func CheckVPROS(value string) bool {
 	}
 	return false
 }
+
+//CheckValid check if the value is valid
+func CheckValid(value string) bool {
+	valid := []string{"1", "2", "3", "4", "4a", "4b", "4c", "4d"}
+	for _, v := range valid {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
