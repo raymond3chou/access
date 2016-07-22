@@ -7,10 +7,47 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/access"
 	"github.com/access/excelHelper"
 )
+
+//Fix is an object that highlights the errors when reading from file
+type Fix struct {
+	Field string `json:"field"`
+	Msg   string `json:"msg"`
+}
+
+//DateErrorHandler error halder for dates
+func DateErrorHandler(rowCheck bool, row int, col string, s string) Fix {
+	var f Fix
+	f.Field = "date"
+	f.Msg = "invalid date: " + s
+	return f
+}
+
+//CantReadErrorHandler handles the error if unable to convert to int
+func CantReadErrorHandler(row int, col string, rowSlice map[string]string) Fix {
+	var f Fix
+	f.Field = "code"
+	if !strings.ContainsAny(rowSlice[col], "0123456789") {
+		f.Msg = "invalid code: " + rowSlice[col]
+		rowSlice[col] = "-9"
+		return f
+	}
+	f.Msg = "invalid code: " + rowSlice[col]
+	rowSlice[col] = "-9"
+	return f
+}
+
+//OutBoundsErrorHandler handles out of bounds errors
+func OutBoundsErrorHandler(row int, col string, rowSlice map[string]string) Fix {
+	var f Fix
+	f.Field = "code"
+	f.Msg = "invalid code: " + rowSlice[col]
+	return f
+}
 
 //CheckIDDuplicates checks for duplicates in chart or ptid
 func CheckIDDuplicates(id string, ptid bool) bool {
@@ -50,16 +87,23 @@ func compareLine(file *os.File, cLine string) bool {
 }
 
 //CheckValidNumber converts string to int and checks if the input is within the valid bounds
-func CheckValidNumber(min int, max int, input string) bool {
+//0-Success
+//1-Can't Read
+//2-(-9)
+//3-Out of Bounds
+func CheckValidNumber(min int, max int, input string) int {
 	i, err := strconv.Atoi(input)
 	if err != nil {
 		log.Println(err)
-		return false
+		return 1
 	}
 	if i <= max && i >= min {
-		return true
+		return 0
 	}
-	return false
+	if i == -9 {
+		return 2
+	}
+	return 3
 }
 
 //CheckNonNegative coverts input to int and checks if input is non negative
@@ -88,13 +132,6 @@ func CheckNonNegativeFloat(input string) bool {
 	return false
 }
 
-//ErrorHandler handles the error
-func ErrorHandler(rowCheck bool, row int, col string, value string) {
-	if rowCheck {
-		log.Printf("Row %d  Col %s = %s is not a valid integer", row, col, value)
-	}
-}
-
 //CheckPVD checks if PVD defaults to 1 when CORATID is >0
 func CheckPVD(pvd string, coratID string) bool {
 	p := excelHelper.StringToInt(pvd)
@@ -116,9 +153,9 @@ func CheckVPROS(value string) bool {
 	return false
 }
 
-//CheckValid check if the value is valid
-func CheckValid(value string) bool {
-	valid := []string{"1", "2", "3", "4", "4a", "4b", "4c", "4d"}
+//CheckCCS check if the value is valid
+func CheckCCS(value string) bool {
+	valid := []string{" ", "1", "2", "3", "4", "4a", "4b", "4c", "4d"}
 	for _, v := range valid {
 		if v == value {
 			return true
